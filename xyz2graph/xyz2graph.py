@@ -135,8 +135,14 @@ class MolGraph:
         self.atomic_radii = [atomic_radii[element] for element in self.elements]
         self._generate_adjacency_list()
 
-    def _generate_adjacency_list(self):
-        """Generates an adjacency list from atomic cartesian coordinates."""
+    def _generate_adjacency_list(self,scaling=1.4):
+        """Generates an adjacency list from atomic cartesian coordinates.
+        
+        parameters
+        ----------
+        scaling: float 
+            Scaling the distance (original: 1.3, default: 1.4)
+        """
 
         node_ids = range(len(self.elements))
         xyz = np.stack((self.x, self.y, self.z), axis=-1)
@@ -144,8 +150,8 @@ class MolGraph:
         distances = np.sqrt(np.einsum("ijk,ijk->ij", distances, distances))
 
         atomic_radii = np.array(self.atomic_radii)
-        distance_bond = (atomic_radii[:, np.newaxis] + atomic_radii) * 1.3
-
+        # GMJ: edited
+        distance_bond = (atomic_radii[:, np.newaxis] + atomic_radii) * scaling
         adj_matrix = np.logical_and(0.1 < distances, distance_bond > distances).astype(
             int
         )
